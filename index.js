@@ -47,6 +47,13 @@ async function run() {
             res.send(result)
         } )
         
+        app.delete('/bookings/:id', async (req, res) => {
+            const { id } = req.params
+            const query = { _id: new ObjectId(id) }
+            const result = await bookingCollections.deleteOne(query)
+            res.send(result)
+        })
+        
         app.get('/', (req, res) => {
             res.send('SportNest server is running')
         })
