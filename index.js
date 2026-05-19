@@ -25,6 +25,7 @@ async function run() {
 
         const database = client.db('sportnest')
         const facilityCollections = database.collection('facilities')
+        const bookingCollections = database.collection('bookings')
 
         app.get('/facilities', async (req, res) => {
             const result = await facilityCollections.find().toArray()
@@ -36,6 +37,15 @@ async function run() {
             const result = await facilityCollections.findOne(query) 
             res.send(result)
         })
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body
+            const result = await bookingCollections.insertOne(booking)
+            res.send(result)
+        } )
+        app.get('/bookings', async (req, res) => {
+            const result = await bookingCollections.find().toArray()
+            res.send(result)
+        } )
         
         app.get('/', (req, res) => {
             res.send('SportNest server is running')
