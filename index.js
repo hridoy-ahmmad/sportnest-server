@@ -33,28 +33,35 @@ async function run() {
         })
         app.get('/facilities/:id', async (req, res) => {
             const { id } = req.params
-           const query = { _id: new ObjectId(id) }
-            const result = await facilityCollections.findOne(query) 
+            const query = { _id: new ObjectId(id) }
+            const result = await facilityCollections.findOne(query)
             res.send(result)
         })
         app.post('/bookings', async (req, res) => {
             const booking = req.body
             const result = await bookingCollections.insertOne(booking)
             res.send(result)
-        } )
+        })
         app.get('/bookings/:id', async (req, res) => {
-            const {id} = req.params
-            const result = await bookingCollections.find({user_id:id}).toArray()
+            const { id } = req.params
+            const result = await bookingCollections.find({ user_id: id }).toArray()
             res.send(result)
         })
-        
+
         app.delete('/bookings/:id', async (req, res) => {
             const { id } = req.params
             const query = { _id: new ObjectId(id) }
             const result = await bookingCollections.deleteOne(query)
             res.send(result)
         })
+        app.post('/facilities', async (req, res) => {
+            const facility = req.body
+            const result = await facilityCollections.insertOne(facility)
+            res.send(result)
+        })
+
         
+
         app.get('/', (req, res) => {
             res.send('SportNest server is running')
         })
