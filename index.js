@@ -42,10 +42,11 @@ async function run() {
             const result = await bookingCollections.insertOne(booking)
             res.send(result)
         } )
-        app.get('/bookings', async (req, res) => {
-            const result = await bookingCollections.find().toArray()
+        app.get('/bookings/:id', async (req, res) => {
+            const {id} = req.params
+            const result = await bookingCollections.find({user_id:id}).toArray()
             res.send(result)
-        } )
+        })
         
         app.delete('/bookings/:id', async (req, res) => {
             const { id } = req.params
