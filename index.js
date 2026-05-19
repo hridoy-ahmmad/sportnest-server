@@ -3,7 +3,7 @@ const express = require('express')
 var cors = require('cors')
 const app = express()
 const port = process.env.PORT || 5000
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://sportnest:uxLHy3aGC21eo5wY@cluster0.wb7lpvk.mongodb.net/?appName=Cluster0";
 
 app.use(express.json())
@@ -24,15 +24,25 @@ async function run() {
         await client.connect();
 
         const database = client.db('sportnest')
-        const facultyCollections = database.collection('faculties')
+        const facilityCollections = database.collection('facilities')
 
-        app.get('/faculties', async (req, res) => {
-            const result = await facultyCollections.find().toArray()
+        app.get('/facilities', async (req, res) => {
+            const result = await facilityCollections.find().toArray()
+            res.send(result)
+        })
+        app.get('/facilities/:id', async (req, res) => {
+            const { id } = req.params
+           const query = { _id: new ObjectId(id) }
+            const result = await facilityCollections.findOne(query) 
             res.send(result)
         })
         
+        app.get('/', (req, res) => {
+            res.send('SportNest server is running')
+        })
+
         app.listen(port, () => {
-            console.log(`Example app listening on port ${port}`)
+
         })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
