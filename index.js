@@ -72,6 +72,18 @@ async function run() {
             const result = await facilityCollections.deleteOne(query)
             res.send(result)
         })
+        app.patch('/facilities/:id', async (req, res) => {
+            const { id } = req.params
+            const data = req.body
+            const query = {
+                _id: id
+            }
+            const result = await facilityCollections.updateOne(
+                { query },
+                { $set: data }
+            )
+            res.send(result)
+        })
 
 
         app.get('/', (req, res) => {
