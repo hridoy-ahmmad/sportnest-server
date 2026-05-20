@@ -59,16 +59,26 @@ async function run() {
             const result = await facilityCollections.insertOne(facility)
             res.send(result)
         })
+        app.get('/facilities/user/:userId', async (req, res) => {
+            const { userId } = req.params
+            const result = await facilityCollections.find({ user_id: userId }).toArray()
+            res.send(result)
+        })
+        app.delete('/facilities/:id', async (req, res) => {
+            const { id } = req.params
+            const query = {
+                _id: new ObjectId(id)
+            }
+            const result = await facilityCollections.deleteOne(query)
+            res.send(result)
+        })
 
-        
 
         app.get('/', (req, res) => {
             res.send('SportNest server is running')
         })
 
-        app.listen(port, () => {
 
-        })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -78,3 +88,7 @@ async function run() {
     }
 }
 run().catch(console.dir);
+
+app.listen(port, () => {
+    console.log(`SportNest server is running on port ${port}`)
+})
