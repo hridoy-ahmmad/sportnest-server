@@ -4,6 +4,7 @@ var cors = require('cors')
 const app = express()
 const port = process.env.PORT || 5000
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { createRemoteJWKSet, jwtVerify } = require('jose-cjs');
 const uri = "mongodb+srv://sportnest:uxLHy3aGC21eo5wY@cluster0.wb7lpvk.mongodb.net/?appName=Cluster0";
 
 app.use(express.json())
@@ -17,6 +18,32 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+const jwks = createRemoteJWKSet(
+    new URL('http://localhost:3000/api/auth/jwks')
+)
+
+const verifyToken = async (req, res, next) => {
+    const headerValue = req.headers.authorization
+    if (!headerValue) {
+        return res.status(401).send({ message: 'Unauthorized' })
+    }
+    const token = await headerValue.split(' ')[1]
+    if (!token) {
+        returnres.status(401).send({ message: 'Unauthorized' })
+    }
+    try {
+        const { payload } = await jwtVerify(token, jwks)
+        next()
+    } catch (error) {
+        return res.status(403).message({ message: 'Forbidden' })
+    }
+
+    console.log(token);
+    // console.log(payload);
+
+
+
+}
 
 async function run() {
     try {
@@ -31,7 +58,7 @@ async function run() {
             const result = await facilityCollections.find().toArray()
             res.send(result)
         })
-        app.get('/facilities/:id', async (req, res) => {
+        app.get('/facilities/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             const query = { _id: new ObjectId(id) }
             const result = await facilityCollections.findOne(query)
@@ -42,7 +69,7 @@ async function run() {
             const result = await bookingCollections.insertOne(booking)
             res.send(result)
         })
-        app.get('/bookings/:id', async (req, res) => {
+        app.get('/bookings/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             const result = await bookingCollections.find({ user_id: id }).toArray()
             res.send(result)
@@ -59,7 +86,7 @@ async function run() {
             const result = await facilityCollections.insertOne(facility)
             res.send(result)
         })
-        app.get('/facilities/user/:userId', async (req, res) => {
+        app.get('/facilities/user/:userId', verifyToken, async (req, res) => {
             const { userId } = req.params
             const result = await facilityCollections.find({ user_id: userId }).toArray()
             res.send(result)
@@ -75,11 +102,8 @@ async function run() {
         app.patch('/facilities/:id', async (req, res) => {
             const { id } = req.params
             const data = req.body
-            const query = {
-                _id: id
-            }
             const result = await facilityCollections.updateOne(
-                { query },
+                { _id: new ObjectId(id) },
                 { $set: data }
             )
             res.send(result)
